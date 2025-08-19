@@ -10,7 +10,7 @@ aiRouter.post('/generate-article',auth,genrateArticle)
 aiRouter.post('/generate-blog-title',auth,genrateBlogTitle)
 aiRouter.post('/generate-image',auth,genrateImage)
 aiRouter.post('/remove-image-background', upload.single('image'), auth,removeImageBackground)
-aiRouter.post('/remove-image-object', upload.single('image'), auth,removeImageObject)
+aiRouter.post('/remove-image-objects', upload.single('image'), auth,removeImageObject)
 aiRouter.post('/resume-review', upload.single('resume'), auth,resumeReview)
 
 
