@@ -26,33 +26,40 @@
 // app.listen(PORT,()=>{
 //     console.log("Server is running on PORT:",+PORT)
 // })
-
-
-import express from 'express';
-import cors from 'cors';
-import 'dotenv/config';
-import { clerkMiddleware, requireAuth } from '@clerk/express';
-import aiRouter from './routes/aiRoutes.js';
-import userRouter from './routes/userRoutes.js';
-import connectCloudinary from './configs/cloudinary.js';
+import express from "express";
+import cors from "cors";
+import "dotenv/config";
+import { clerkMiddleware, requireAuth } from "@clerk/express";
+import aiRouter from "./routes/aiRoutes.js";
+import userRouter from "./routes/userRoutes.js";
+import connectCloudinary from "./configs/cloudinary.js";
 
 const app = express();
 await connectCloudinary();
 
-app.use(cors());
+// 🌍 Middlewares
+app.use(
+  cors({
+    origin: "http://localhost:5173",
+    credentials: true,
+  })
+);
 app.use(express.json());
-app.use(clerkMiddleware()); // ✅ Required for Clerk context
 
-// ✅ PUBLIC route — must NOT be protected
-app.get('/', (req, res) => {
-  res.send('Backend working ✅');
+// ✅ Clerk middleware (REQUIRED)
+app.use(clerkMiddleware());
+
+// 🟢 Health check
+app.get("/", (req, res) => {
+  res.send("Server is Live!");
 });
 
-// ✅ Favicon route — avoid redirecting it
-app.get('/favicon.ico', (req, res) => res.status(204).end());
+// 🔐 Protect APIs with Clerk
+app.use("/api/ai", requireAuth(), aiRouter);
+app.use("/api/user", requireAuth(), userRouter);
 
-// ✅ Only protect API routes
-app.use('/api/ai', requireAuth(), aiRouter);
-app.use('/api/user', requireAuth(), userRouter);
-
-export default app;
+// 🔊 Start server
+const PORT = process.env.PORT || 3000;
+app.listen(PORT, () => {
+  console.log("Server is running on PORT:", PORT);
+});
